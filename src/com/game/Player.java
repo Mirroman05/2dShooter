@@ -32,10 +32,14 @@ public class Player {
 	private Color color2;
 	
 	private int score;
+	public int powerLevel;
+	private int power;
+	private int[] requiredPower = {1,2,3 ,4,5};
+	
 	
 	public Player(){
 		x = GamePanel.WIDTH/2;
-		y = GamePanel.HEIGHT/2;
+		y = GamePanel.HEIGHT-10;
 		r=5;
 		
 		dx = 0;
@@ -88,6 +92,10 @@ public class Player {
 		recoveryTimer = System.nanoTime();
 	}
 	
+	public void gainLife(){
+		lives++;
+	}
+	
 	public void update(){
 		if(left){
 			dx = -speed;
@@ -113,11 +121,24 @@ public class Player {
 		dx = 0;
 		dy = 0;
 		
+		//firing
 		if(firing){
 			long elapsed = (System.nanoTime()-firingTimer)/1000000;
+			
 			if(elapsed> firingDelay){
-				GamePanel.bullets.add(new Bullet(270,x,y));
 				firingTimer = System.nanoTime();
+
+				if(powerLevel<2){
+					GamePanel.bullets.add(new Bullet(270,x,y));
+				}
+				else if(powerLevel<4){
+					GamePanel.bullets.add(new Bullet(270,x+5,y));
+					GamePanel.bullets.add(new Bullet(270,x-5,y));
+				}else{
+					GamePanel.bullets.add(new Bullet(270,x,y));
+					GamePanel.bullets.add(new Bullet(275,x+5,y));
+					GamePanel.bullets.add(new Bullet(265,x-5,y));
+				}
 			}
 		}
 		
@@ -148,5 +169,21 @@ public class Player {
 		g.drawOval(x-r, y-r, 2*r, 2*r);
 		g.setStroke(new BasicStroke(1));
 		}
+	}
+
+	
+	public int getPowerLevel(){return powerLevel;}
+	public int getPower(){return power;}
+	public int getRequiredPower(){return requiredPower[powerLevel];}
+	
+	
+	public void increasePower(int i) {
+		
+		 power+= i;
+		 if (power >= requiredPower[powerLevel]){
+			 power -= requiredPower[powerLevel];
+			 powerLevel++;
+		 }
+		
 	}
 }
