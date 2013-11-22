@@ -1,9 +1,12 @@
 package com.game;
 import javax.swing.JPanel;
+
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.*;
 
-public class GamePanel extends JPanel implements Runnable{
+public class GamePanel extends JPanel implements Runnable, KeyListener{
 	
 	private static final long serialVersionUID = 1L;
 	//fields
@@ -17,6 +20,7 @@ public class GamePanel extends JPanel implements Runnable{
 	
 	private int FPS = 30;
 	private double averageFPS;
+	private Player player;
 	
 	//constructor
 	public GamePanel(){
@@ -32,6 +36,7 @@ public class GamePanel extends JPanel implements Runnable{
 			thread = new Thread(this);
 			thread.start();
 		}
+		addKeyListener(this);
 	}
 
 	
@@ -41,6 +46,8 @@ public class GamePanel extends JPanel implements Runnable{
 		
 		image = new BufferedImage(WIDTH,HEIGHT, BufferedImage.TYPE_INT_RGB);
 		g = (Graphics2D) image.getGraphics();
+		
+		player = new Player();
 		
 		long startTime;
 		long URDTimeMillis;
@@ -80,21 +87,65 @@ public class GamePanel extends JPanel implements Runnable{
 	}
 	
 	private void gameUpdate(){
-		
+		player.update();
 	}
 	
 	//Draws to Graphics
 	private void gameRender(){
-		g.setColor(Color.WHITE);
+		g.setColor(new Color(0,100,255));
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		g.setColor(Color.BLACK);
 		g.drawString("FPS:  "+averageFPS, 10, 10);
+		
+		player.draw(g);
 	}
 	//Draws completed image to the screen
 	private void gameDraw(){
 		Graphics g2 = this.getGraphics();
 		g2.drawImage(image,0,0, null);
 		g2.dispose();
+	}
+
+
+	public void keyPressed(KeyEvent key) {
+		int keyCode = key.getKeyCode();
+		if(keyCode ==KeyEvent.VK_LEFT){
+			player.setLeft(true);
+		}
+		if(keyCode ==KeyEvent.VK_RIGHT){
+			player.setRight(true);
+		}
+		if(keyCode ==KeyEvent.VK_UP){
+			player.setUp(true);
+		}
+		if(keyCode ==KeyEvent.VK_DOWN){
+			player.setDown(true);
+		}
+		
+	}
+
+	
+	public void keyReleased(KeyEvent key) {
+		int keyCode = key.getKeyCode();
+		if(keyCode ==KeyEvent.VK_LEFT){
+			player.setLeft(false);
+		}
+		if(keyCode ==KeyEvent.VK_RIGHT){
+			player.setRight(false);
+		}
+		if(keyCode ==KeyEvent.VK_UP){
+			player.setUp(false);
+		}
+		if(keyCode ==KeyEvent.VK_DOWN){
+			player.setDown(false);
+		}
+		
+	}
+
+	
+	public void keyTyped(KeyEvent key) {
+		
+		
 	}
 
 }
