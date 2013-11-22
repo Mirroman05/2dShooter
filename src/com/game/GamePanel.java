@@ -25,6 +25,12 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 	public static ArrayList<Bullet> bullets;
 	public static ArrayList<Enemy> enemies;
 	
+	private long waveStartTimer;
+	private long waveStartTimerDiff;
+	private long waveNumber;
+	private boolean waveStart;
+	private int waveDelay = 2000;
+	
 	//constructor
 	public GamePanel(){
 		super();
@@ -49,14 +55,21 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 		
 		image = new BufferedImage(WIDTH,HEIGHT, BufferedImage.TYPE_INT_RGB);
 		g = (Graphics2D) image.getGraphics();
+		g.setRenderingHint(
+				RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(
+				RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		
 		player = new Player();
 		bullets = new ArrayList<Bullet>();
 		enemies = new ArrayList<Enemy>();
 		
-		for(int i = 0; i < 5 ;i++){
-			enemies.add(new Enemy(1,1));
-		}
+		waveStartTimer = 0;
+		waveStartTimerDiff = 0;
+		 waveNumber = 0;
+		 waveStart = true;
 		
 		long startTime;
 		long URDTimeMillis;
@@ -96,6 +109,26 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 	}
 	
 	private void gameUpdate(){
+		
+		//new wave
+		if(waveStartTimer == 0 && enemies.size() ==  0){
+			waveNumber++;
+			waveStart = false;
+			waveStartTimer = System.nanoTime();
+		}else{
+			waveStartTimerDiff = (System.nanoTime() - waveStartTimer) /1000000;
+			if(waveStartTimerDiff > waveDelay){
+				waveStart = true;
+				waveStartTimer = 0;
+				waveStartTimerDiff = 0;
+			}
+		}
+		
+		//create enemies
+		if(waveStart && enemies.size() == 0){
+			createNewEnemies();
+		}
+		
 		//player update 
 		player.update();
 		//bullet update
@@ -118,7 +151,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 			for(int j = 0;j<enemies.size();j++){
 				Enemy e = enemies.get(j);
 				
-				if (bulletDistance(b,e) < b.getr() + e.getr()){
+				if (Distance(b,e) < b.getr() + e.getr()){
 					e.hit();
 					bullets.remove(i);
 					i--;
@@ -129,19 +162,33 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 		//check dead enemies
 		for(int j = 0;j<enemies.size();j++){
 				if(enemies.get(j).isDead()){
+					Enemy e = enemies.get(j);
+					player.addScore((e.getType() + e.getRank())*5);
 					enemies.remove(j);
 					j--;
 				}
+		}
+		
+		//player-enemy collision
+		if(!player.isRecovering()){
+			for(int j = 0;j<enemies.size();j++){
+				Enemy e = enemies.get(j);
+				if (Distance(player,e) < player.getr() + e.getr()){
+					player.loselife();
+				}
+				
+			}
 		}
 		
 	}
 	
 	//Draws to Graphics
 	private void gameRender(){
+		
+		//draw background
 		g.setColor(new Color(0,100,255));
 		g.fillRect(0, 0, WIDTH, HEIGHT);
-		g.setColor(Color.BLACK);
-		g.drawString("FPS:  "+averageFPS, 10, 10);
+		
 		//draw player
 		player.draw(g);
 		//draw bullets
@@ -152,7 +199,30 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 		for(int i = 0;i<enemies.size();i++){
 			 enemies.get(i).draw(g);
 		}
+		//draw wave number
+		if(waveStartTimer != 0){
+			g.setFont(new Font("Century Gothic", Font.PLAIN, 18));
+			String s = "- W A V E    " + waveNumber + "   -";
+			int length = (int) g.getFontMetrics().getStringBounds(s, g).getWidth();
+			int alpha = (int) (255+Math.sin(3.14* waveStartTimerDiff/waveDelay));
+			if(alpha > 255) alpha = 255;
+			g.setColor(new Color(255,255,255,alpha));
+			g.drawString(s, WIDTH / 2 - length/2, HEIGHT /2);
+		}
+		//draw player lives
+		for(int i = 0;i < player.getLives();i++){
+			g.setColor(Color.WHITE);
+			g.fillOval(10 + (20 * i), 10, 2*player.getr(), 2*player.getr());
+			g.setStroke(new BasicStroke(3));
+			g.setColor(Color.WHITE.darker());
+			g.drawOval(10 + (20 * i), 10, 2*player.getr(), 2*player.getr());
+			g.setStroke(new BasicStroke(1));
+		}
 		
+		//draw player score
+		g.setColor(Color.WHITE);
+		g.setFont(new Font("Century Gothic", Font.PLAIN, 14));
+		g.drawString("Score:  "+ player.getScore(), WIDTH -100, 20);
 	}
 	//Draws completed image to the screen
 	private void gameDraw(){
@@ -161,7 +231,22 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 		g2.dispose();
 	}
 
-
+	private void createNewEnemies(){
+		enemies.clear();
+		Enemy e;
+		if(waveNumber == 1){
+			for(int i = 0; i<4;i++){
+				enemies.add(new Enemy(1,1));
+			}
+		}
+		if(waveNumber == 2){
+			for(int i = 0; i<8;i++){
+				enemies.add(new Enemy(1,1));
+			}
+		}
+	}
+	
+	
 	public void keyPressed(KeyEvent key) {
 		int keyCode = key.getKeyCode();
 		if(keyCode ==KeyEvent.VK_LEFT){
@@ -208,9 +293,14 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 		
 	}
 
-	public double bulletDistance(Bullet b, Enemy e){
+	public double Distance(Bullet b, Enemy e){
 		double dx = b.getx() - e.getx();
 		double dy = b.gety() - e.gety();
+		return  Math.sqrt(dx * dx + dy *dy);
+	}
+	public double Distance(Player p, Enemy e){
+		double dx = p.getx() - e.getx();
+		double dy = p.gety() - e.gety();
 		return  Math.sqrt(dx * dx + dy *dy);
 	}
 	
