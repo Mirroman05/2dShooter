@@ -23,6 +23,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 	private double averageFPS;
 	public static Player player;
 	public static ArrayList<Bullet> bullets;
+	public static ArrayList<Enemy> enemies;
 	
 	//constructor
 	public GamePanel(){
@@ -51,6 +52,12 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 		
 		player = new Player();
 		bullets = new ArrayList<Bullet>();
+		enemies = new ArrayList<Enemy>();
+		
+		for(int i = 0; i < 5 ;i++){
+			enemies.add(new Enemy(1,1));
+		}
+		
 		long startTime;
 		long URDTimeMillis;
 		long waitTime;
@@ -89,8 +96,9 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 	}
 	
 	private void gameUpdate(){
+		//player update 
 		player.update();
-		
+		//bullet update
 		for(int i = 0;i<bullets.size();i++){
 			boolean remove = bullets.get(i).update();
 			if(remove){
@@ -98,6 +106,34 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 				i--;
 			}
 		}
+		
+		//enemy update 
+		for(int i = 0;i<enemies.size();i++){
+			 enemies.get(i).update();
+		}
+		
+		//bullet-enemy collision
+		for(int i = 0;i<bullets.size();i++){
+			Bullet b = bullets.get(i);
+			for(int j = 0;j<enemies.size();j++){
+				Enemy e = enemies.get(j);
+				
+				if (bulletDistance(b,e) < b.getr() + e.getr()){
+					e.hit();
+					bullets.remove(i);
+					i--;
+					break;
+				}
+			}
+		}
+		//check dead enemies
+		for(int j = 0;j<enemies.size();j++){
+				if(enemies.get(j).isDead()){
+					enemies.remove(j);
+					j--;
+				}
+		}
+		
 	}
 	
 	//Draws to Graphics
@@ -106,11 +142,15 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		g.setColor(Color.BLACK);
 		g.drawString("FPS:  "+averageFPS, 10, 10);
-		
+		//draw player
 		player.draw(g);
-		
+		//draw bullets
 		for(int i = 0;i<bullets.size();i++){
 			bullets.get(i).draw(g);
+		}
+		//draw enemy
+		for(int i = 0;i<enemies.size();i++){
+			 enemies.get(i).draw(g);
 		}
 		
 	}
@@ -168,4 +208,10 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 		
 	}
 
+	public double bulletDistance(Bullet b, Enemy e){
+		double dx = b.getx() - e.getx();
+		double dy = b.gety() - e.gety();
+		return  Math.sqrt(dx * dx + dy *dy);
+	}
+	
 }
