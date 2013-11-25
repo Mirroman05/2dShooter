@@ -25,6 +25,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 	public static ArrayList<Bullet> bullets;
 	public static ArrayList<Enemy> enemies;
 	public static ArrayList<PowerUp> powerups;
+	public static ArrayList<Explosion> explosions;
 	
 	private long waveStartTimer;
 	private long waveStartTimerDiff;
@@ -68,6 +69,8 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 		bullets = new ArrayList<Bullet>();
 		enemies = new ArrayList<Enemy>();
 		powerups = new ArrayList<PowerUp>();
+		explosions = new ArrayList<Explosion>();
+		
 		waveStartTimer = 0;
 		waveStartTimerDiff = 0;
 		 waveNumber = 0;
@@ -164,6 +167,15 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 			}
 		}
 		
+		//explosion update
+		for(int i = 0;i<explosions.size();i++){
+			boolean remove = explosions.get(i).update();
+			if(remove){
+				explosions.remove(i);
+				i--;
+			}
+		}
+		
 		
 		//bullet-enemy collision
 		for(int i = 0;i<bullets.size();i++){
@@ -193,6 +205,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 					enemies.remove(j);
 					j--;
 					e.explode();
+					explosions.add(new Explosion(e.getx(), e.gety(),e.getr(),e.getr()+20));
 				}
 		}
 		
@@ -258,6 +271,11 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 		//draw powerup
 		for(int i = 0;i<powerups.size();i++){
 			 powerups.get(i).draw(g);
+		}
+		
+		//draw explosions
+		for(int i = 0;i<explosions.size();i++){
+			 explosions.get(i).draw(g);
 		}
 		
 		//draw wave number
