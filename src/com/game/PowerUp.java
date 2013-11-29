@@ -15,7 +15,7 @@ public class PowerUp {
 	//1 -- +1 life
 	//2 -- +1 power
 	//3 -- +2 power
-	
+	//4 -- slow down time
 	public PowerUp(int type, double x, double y){
 		this. type = type;
 		this.x = x;
@@ -32,6 +32,10 @@ public class PowerUp {
 		if(type == 3){
 			color1 = Color.YELLOW;
 			r =5;
+		}
+		if(type == 4){
+			color1 = Color.WHITE;
+			r =3;
 		}
 		
 	}

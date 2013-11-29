@@ -26,6 +26,9 @@ public class Enemy {
 	private boolean hit;
 	private long hitTimer;
 	
+	private boolean slow;
+	
+	
 	public Enemy(int type, int rank){
 		this.type = type;
 		this.rank = rank;
@@ -136,6 +139,11 @@ public class Enemy {
 		return dead;
 	}
 	
+	public void setSlow(boolean b){
+		slow = b;
+	}
+	
+	
 	public void explode(){
 		if(rank>1){
 			int amount = 0;
@@ -176,9 +184,14 @@ public class Enemy {
 	}
 	
 	public void update (){
+		
+		if(slow){
+			x += dx * .3;
+			y += dy* .3;	
+		}else{
 		x += dx;
 		y += dy;
-		
+		}
 		if(!ready){
 			if(x > r && x < GamePanel.WIDTH -r && y > r && y< GamePanel.HEIGHT - r){
 				ready = true;
