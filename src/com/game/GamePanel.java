@@ -117,6 +117,18 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 				totalTime = 0;
 			}
 		}
+		g.setColor(new Color(0,0,0));
+		g.fillRect(0, 0, WIDTH, HEIGHT);
+		g.setColor(Color.WHITE);
+		g.setFont(new Font("Century Gothic", Font.PLAIN, 12));
+		String s = "G A M E O V E R";
+		int length = (int) g.getFontMetrics().getStringBounds(s, g).getWidth();
+		g.drawString(s, (WIDTH -length)/2, HEIGHT /2);
+		s = "Final Score: " + player.getScore();
+		length = (int) g.getFontMetrics().getStringBounds(s, g).getWidth();
+		g.drawString(s, (WIDTH -length)/2, (HEIGHT /2)+30);
+		gameDraw();
+		
 	}
 	
 	private void gameUpdate(){
@@ -216,7 +228,6 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 					else if(rand < 0.120) powerups.add(new PowerUp(2,e.getx(),e.gety()));
 					else if(rand < 0.020) powerups.add(new PowerUp(3,e.getx(),e.gety()));
 					else if(rand < 0.130) powerups.add(new PowerUp(4,e.getx(),e.gety()));
-					else powerups.add(new PowerUp(4,e.getx(),e.gety()));
 					player.addScore((e.getType() + e.getRank())*5);
 					enemies.remove(j);
 					j--;
@@ -224,6 +235,12 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 					explosions.add(new Explosion(e.getx(), e.gety(),e.getr(),e.getr()+20));
 				}
 		}
+		
+		//check dead player
+		if(player.isDead()){
+			running = false;
+		}
+		
 		
 		//player-enemy collision
 		if(!player.isRecovering()){
@@ -390,6 +407,9 @@ public class GamePanel extends JPanel implements Runnable, KeyListener{
 			enemies.add(new Enemy(1,3));
 			enemies.add(new Enemy(1,3));
 			enemies.add(new Enemy(1,4));
+		}
+		if(waveNumber == 4){
+			running = false;
 		}
 	}
 	

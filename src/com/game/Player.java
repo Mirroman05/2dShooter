@@ -181,10 +181,21 @@ public class Player {
 	public void increasePower(int i) {
 		
 		 power+= i;
+		 if(powerLevel == 4){
+			 if(power > requiredPower[powerLevel]){
+				 power = requiredPower[powerLevel];
+			 }
+			 return;
+		 }
 		 if (power >= requiredPower[powerLevel]){
 			 power -= requiredPower[powerLevel];
 			 powerLevel++;
 		 }
 		
+	}
+
+	public boolean isDead() {
+		
+		return lives <= 0;
 	}
 }

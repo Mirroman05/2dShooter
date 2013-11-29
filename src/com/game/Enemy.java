@@ -158,6 +158,7 @@ public class Enemy {
 				}
 				for (int i = 0;i<amount;i++){
 					Enemy e = new Enemy(getType(),getRank() -1);
+					e.setSlow(slow);
 					e.x = this.x;
 					e.y = this.y;
 					double angle  = 0;
