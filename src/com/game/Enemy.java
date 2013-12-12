@@ -106,6 +106,30 @@ public class Enemy {
 				}
 			
 		}
+		if(type ==4){
+			color1 = new Color(255,255,0,128);
+			if(rank ==1){
+			speed = 10;
+			r=5;
+			health =1;
+			}
+			if(rank ==2){
+				speed = 10;
+				r=5;
+				health =2;
+				}
+			if(rank ==3){
+				speed = 10;
+				r=10;
+				health =3;
+				}
+			if(rank ==4){
+				speed = 15;
+				r=20;
+				health =4;
+				}
+			
+		}
 		x = Math.random() * GamePanel .WIDTH /2 + GamePanel.HEIGHT / 4;
 		y = -r;
 		
