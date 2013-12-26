@@ -100,7 +100,7 @@ public class Enemy {
 				health =7;
 				}
 			if(rank ==4){
-				speed = 1.5;
+				speed = 2.5;
 				r=45;
 				health =8;
 				}
