@@ -107,7 +107,7 @@ public class Enemy {
 			
 		}
 		if(type ==4){
-			color1 = new Color(255,255,0,128);
+			color1 = new Color(255,255,100,128);
 			if(rank ==1){
 			speed = 10;
 			r=5;
