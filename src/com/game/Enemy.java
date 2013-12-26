@@ -83,7 +83,7 @@ public class Enemy {
 		}
 		//slow, but hard to kill
 		if(type ==3){
-			color1 = new Color(0,255,0,128);
+			color1 = new Color(0,245,0,128);
 			if(rank ==1){
 			speed = 1.5;
 			r=5;
